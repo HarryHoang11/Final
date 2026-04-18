@@ -74,49 +74,97 @@ async function apiCall(method, endpoint, data = null) {
 
 // ── NAVBAR ────────────────────────────────────────
 async function updateNavbarAuth(user) {
-  const authSection = document.getElementById("navbar-auth");
-  if (!authSection) return;
-
+  // Lấy role từ Firestore nếu đã đăng nhập
+  let role = 'user';
   if (user) {
-    let role = "user";
     try {
       const snap = await db.collection('users').doc(user.uid).get();
-      if (snap.exists) role = snap.data().role || "user";
+      if (snap.exists) role = snap.data().role || 'user';
     } catch (e) {
-      console.warn("Không lấy được role:", e);
+      console.warn('Không lấy được role:', e);
     }
     window.userRole = role;
-
-    authSection.innerHTML = `
-      <a href="/cart" class="cart-btn d-flex align-items-center gap-2 text-decoration-none text-white">
-        <i class="bi bi-cart3 fs-5"></i>
-        <span>Giỏ hàng</span>
-        <span class="cart-count badge bg-warning text-dark fw-bold" id="cart-count">0</span>
-      </a>
-      ${role === "admin" ? `
-        <a href="/admin" class="btn btn-warning btn-sm d-flex align-items-center gap-1">
-          <i class="bi bi-gear-fill"></i> Admin
-        </a>` : ""}
-      <div class="d-flex align-items-center gap-3">
-        <span class="text-light small d-none d-md-inline">
-          ${user.email?.split("@")[0] || "User"}
-        </span>
-        <button onclick="signOutUser()" class="btn btn-outline-light btn-sm">Đăng xuất</button>
-      </div>
-    `;
-    loadCartCount();
   } else {
     window.userRole = null;
-    authSection.innerHTML = `
-      <a href="/cart" class="cart-btn d-flex align-items-center gap-2 text-decoration-none text-white">
-        <i class="bi bi-cart3 fs-5"></i>
-        <span>Giỏ hàng</span>
-        <span class="cart-count badge bg-warning text-dark fw-bold" id="cart-count">0</span>
-      </a>
-      <a href="/login" class="btn btn-outline-light btn-sm">Đăng nhập</a>
-    `;
-    loadCartCount();
   }
+
+  const name = user ? (user.email?.split('@')[0] || 'User') : null;
+
+  // ── 1. Navbar cũ (Bootstrap collapse) — id="navbar-auth" ──
+  const legacyNav = document.getElementById('navbar-auth');
+  if (legacyNav) {
+    if (user) {
+      legacyNav.innerHTML = `
+        <a href="/cart" class="cart-btn d-flex align-items-center gap-2 text-decoration-none text-white">
+          <i class="bi bi-cart3 fs-5"></i>
+          <span>Giỏ hàng</span>
+          <span class="cart-count badge bg-warning text-dark fw-bold" id="cart-count">0</span>
+        </a>
+        ${role === 'admin' ? `<a href="/admin" class="btn btn-warning btn-sm"><i class="bi bi-gear-fill me-1"></i>Admin</a>` : ''}
+        <span class="text-light small d-none d-md-inline">${name}</span>
+        <button onclick="signOutUser()" class="btn btn-outline-light btn-sm">Đăng xuất</button>
+      `;
+    } else {
+      legacyNav.innerHTML = `
+        <a href="/cart" class="cart-btn d-flex align-items-center gap-2 text-decoration-none text-white">
+          <i class="bi bi-cart3 fs-5"></i>
+          <span>Giỏ hàng</span>
+          <span class="cart-count badge bg-warning text-dark fw-bold" id="cart-count">0</span>
+        </a>
+        <a href="/login" class="btn btn-outline-light btn-sm">Đăng nhập</a>
+      `;
+    }
+  }
+
+  // ── 2. Navbar mới (custom drawer) — id="navbar-auth-desktop" ──
+  const desktopNav = document.getElementById('navbar-auth-desktop');
+  if (desktopNav) {
+    if (user) {
+      desktopNav.innerHTML = `
+        <a href="/cart" style="display:flex;align-items:center;gap:6px;color:var(--text-primary);text-decoration:none;font-size:14px;padding:7px 12px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;white-space:nowrap;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <i class="bi bi-cart3"></i>
+          <span class="d-none d-sm-inline">Giỏ hàng</span>
+          <span class="cart-badge" id="cart-count" style="background:var(--warning);color:#000;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:none">0</span>
+        </a>
+        ${role === 'admin' ? `<a href="/admin" style="display:flex;align-items:center;gap:5px;font-size:13px;padding:7px 12px;border-radius:8px;background:#f59e0b;color:#000;text-decoration:none;font-weight:600;white-space:nowrap"><i class="bi bi-gear-fill"></i>Admin</a>` : ''}
+        <span style="font-size:13px;color:var(--text-secondary);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis" class="d-none d-md-inline">${name}</span>
+        <button onclick="signOutUser()" style="font-size:13px;padding:7px 14px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-primary);cursor:pointer;white-space:nowrap;transition:all 0.15s" onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-primary)'">Đăng xuất</button>
+      `;
+    } else {
+      desktopNav.innerHTML = `
+        <a href="/cart" style="display:flex;align-items:center;gap:6px;color:var(--text-primary);text-decoration:none;font-size:14px;padding:7px 12px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;white-space:nowrap" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <i class="bi bi-cart3"></i>
+          <span class="d-none d-sm-inline">Giỏ hàng</span>
+          <span class="cart-badge" id="cart-count" style="background:var(--warning);color:#000;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:none">0</span>
+        </a>
+        <a href="/login" style="font-size:13px;padding:7px 14px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-primary);text-decoration:none;white-space:nowrap">Đăng nhập</a>
+        <a href="/register" style="font-size:13px;padding:7px 14px;border-radius:8px;background:var(--accent);border:none;color:white;text-decoration:none;white-space:nowrap">Đăng ký</a>
+      `;
+    }
+  }
+
+  // ── 3. Mobile drawer auth — id="drawer-auth" ──
+  const drawerAuth = document.getElementById('drawer-auth');
+  if (drawerAuth) {
+    if (user) {
+      drawerAuth.innerHTML = `
+        <div style="padding:10px 14px;font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:8px;width:100%;border-radius:8px;background:rgba(255,255,255,0.03)">
+          <i class="bi bi-person-circle fs-5 text-primary"></i>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span>
+          ${role === 'admin' ? `<a href="/admin" style="font-size:11px;padding:3px 8px;border-radius:6px;background:#f59e0b;color:#000;text-decoration:none;font-weight:600;flex-shrink:0">Admin</a>` : ''}
+          <button onclick="signOutUser()" style="font-size:12px;padding:5px 12px;border-radius:7px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-primary);cursor:pointer;flex-shrink:0">Đăng xuất</button>
+        </div>
+      `;
+    } else {
+      drawerAuth.innerHTML = `
+        <a href="/login" style="flex:1;text-align:center;padding:10px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-primary);text-decoration:none;font-size:14px;font-weight:500">Đăng nhập</a>
+        <a href="/register" style="flex:1;text-align:center;padding:10px;border-radius:8px;background:var(--accent);color:white;text-decoration:none;font-size:14px;font-weight:500">Đăng ký</a>
+      `;
+    }
+  }
+
+  // ── 4. Sync cart count ──
+  loadCartCount();
 }
 
 // ── SIGN UP ───────────────────────────────────────
@@ -247,16 +295,27 @@ function saveLocalCart(items) {
 
 // ── CART COUNT ────────────────────────────────────
 function loadCartCount() {
-  const countEl = document.getElementById("cart-count");
-  if (!countEl) return;
   const cart = getLocalCart();
   const total = cart.reduce((sum, item) => sum + item.qty, 0);
-  if (total > 0) {
-    countEl.textContent = total;
-    countEl.classList.add("show");
-  } else {
-    countEl.classList.remove("show");
-  }
+
+  // Update tất cả elements có id chứa "cart-count" (cả navbar cũ + mới + mobile)
+  document.querySelectorAll('[id*="cart-count"]').forEach(el => {
+    el.textContent = total;
+    // Bootstrap badge dùng class "show", custom badge dùng display style
+    if (el.classList.contains('cart-badge') || el.classList.contains('cart-count')) {
+      if (total > 0) {
+        el.classList.add('show');
+        el.style.display = 'inline-block';
+      } else {
+        el.classList.remove('show');
+        el.style.display = 'none';
+      }
+    } else {
+      // badge style Bootstrap
+      if (total > 0) { el.classList.add('show'); }
+      else { el.classList.remove('show'); }
+    }
+  });
 }
 
 // ── ADD TO CART ───────────────────────────────────

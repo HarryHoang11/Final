@@ -870,3 +870,142 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .navbar-brand { font-size: 15px; }
   .brand-icon { width: 26px; height: 26px; font-size: 13px; }
 }
+
+/* ====================================================
+   BOOTSTRAP DARK THEME OVERRIDES
+   Fix Bootstrap components dùng màu sáng trên dark theme
+   ==================================================== */
+
+/* Card */
+.card {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+.card-header, .card-footer {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+.card-body { background: var(--bg-card) !important; }
+
+/* Form inputs */
+.form-control, .form-select {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+.form-control:focus, .form-select:focus {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--accent) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
+}
+.form-control::placeholder, .form-select::placeholder {
+  color: var(--text-muted) !important; opacity: 1;
+}
+
+/* Input groups */
+.input-group-text {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+
+/* List group */
+.list-group-item {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+.list-group-item:hover { background: rgba(255,255,255,0.03) !important; }
+
+/* Table */
+.table {
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+.table thead th {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+.table td, .table th { border-color: var(--border) !important; }
+.table-hover tbody tr:hover { background: rgba(255,255,255,0.03) !important; }
+.table-hover tbody tr:hover td { color: var(--text-primary) !important; }
+
+/* Modal */
+.modal-content {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+.modal-header, .modal-footer {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+/* Breadcrumb */
+.breadcrumb-item a { color: var(--accent); text-decoration: none; }
+.breadcrumb-item.active { color: var(--text-muted) !important; }
+.breadcrumb-item + .breadcrumb-item::before { color: var(--text-muted) !important; }
+
+/* Divider */
+hr { border-color: var(--border) !important; opacity: 1 !important; }
+
+/* Dropdown */
+.dropdown-menu {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+}
+.dropdown-item { color: var(--text-secondary) !important; }
+.dropdown-item:hover {
+  background: rgba(59,130,246,0.1) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Navbar (Bootstrap) */
+.navbar-dark .navbar-nav .nav-link { color: var(--text-secondary); }
+.navbar-dark .navbar-nav .nav-link:hover { color: var(--text-primary); }
+
+/* Alert */
+.alert { border-radius: var(--radius-sm); }
+
+/* Pagination */
+.page-link {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+.page-link:hover { background: var(--bg-secondary) !important; color: var(--accent) !important; }
+.page-item.active .page-link {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* btn-outline variants on dark bg */
+.btn-outline-secondary {
+  color: var(--text-secondary) !important;
+  border-color: var(--border) !important;
+}
+.btn-outline-secondary:hover {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+.btn-outline-light {
+  color: var(--text-primary) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+}
+.btn-outline-light:hover {
+  background: rgba(255,255,255,0.1) !important;
+  color: white !important;
+}
+.btn-outline-danger {
+  color: var(--danger) !important;
+  border-color: var(--danger) !important;
+}
+.btn-outline-danger:hover {
+  background: var(--danger) !important;
+  color: white !important;
+}
