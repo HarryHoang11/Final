@@ -115,29 +115,28 @@ async function saveCart() {
 }
 
 async function checkout() {
-  if (!window.currentUser) {
-    showToast('Vui lòng đăng nhập để đặt hàng', 'error');
-    setTimeout(() => window.location.href = '/login', 1500);
-    return;
-  }
-
-  if (cartItems.length === 0) {
+  // FIX: dùng onAuthStateChanged thay vì window.currentUser
+  // vì window.currentUser có thể chưa được set khi hàm chạy
+  if (!cartItems || cartItems.length === 0) {
     showToast('Giỏ hàng trống!', 'error');
     return;
   }
 
-  const total = cartItems.reduce((sum, i) => sum + (i.price * i.qty), 0) + 30000;
-
-  try {
-    const order = await apiCall('POST', '/orders', { products: cartItems, total });
-    cartItems = [];
-    saveLocalCart([]);
-    renderCart();
-    showToast('🎉 Đặt hàng thành công! Mã đơn: ' + order.id.slice(0, 8), 'success');
-    setTimeout(() => window.location.href = '/', 2000);
-  } catch (e) {
-    showToast('Lỗi đặt hàng: ' + e.message, 'error');
+  if (typeof auth === 'undefined') {
+    // Firebase chưa load, fallback
+    window.location.href = '/checkout';
+    return;
   }
+
+  const unsub = auth.onAuthStateChanged(user => {
+    unsub();
+    if (!user) {
+      showToast('Vui lòng đăng nhập để đặt hàng', 'error');
+      setTimeout(() => window.location.href = '/login?redirect=/checkout', 1200);
+    } else {
+      window.location.href = '/checkout';
+    }
+  });
 }
 
 // FIX: use auth state ready, not a fixed timeout
