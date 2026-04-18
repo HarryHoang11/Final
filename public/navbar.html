@@ -1,0 +1,23 @@
+<!-- NAVBAR TEMPLATE - Included in all pages -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <div class="brand-icon">⚡</div>
+    Tech<span>Store</span>
+  </a>
+
+  <ul class="navbar-nav">
+    <li><a href="/" id="nav-home">Trang chủ</a></li>
+    <li><a href="/products" id="nav-products">Sản phẩm</a></li>
+    <li><a href="/products?category=laptop" id="nav-laptop">Laptop</a></li>
+    <li><a href="/products?category=phone" id="nav-phone">Điện thoại</a></li>
+  </ul>
+
+  <div class="navbar-actions" id="navbar-auth">
+    <!-- Populated by auth.js -->
+    <a href="/cart" class="cart-btn">
+      🛒 <span>Giỏ hàng</span>
+      <span class="cart-count" id="cart-count">0</span>
+    </a>
+    <a href="/login" class="btn-nav-auth">Đăng nhập</a>
+  </div>
+</nav>
