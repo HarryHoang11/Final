@@ -283,27 +283,13 @@
     });
   });
 
-  // Patch auth to update drawer
-  const _orig = window.updateNavbarAuth;
-  window.updateNavbarAuth = async function(user) {
-    if (_orig) await _orig(user);
-    const drawerAuth = document.getElementById('drawer-auth');
-    if (!drawerAuth) return;
-    if (user) {
-      const name = user.email?.split('@')[0] || 'Bạn';
-      drawerAuth.innerHTML = `<div style="padding:8px 14px;font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:8px;width:100%"><i class="bi bi-person-circle fs-5"></i> ${name}<button onclick="signOutUser()" class="nav-btn nav-btn-ghost ms-auto" style="font-size:12px;padding:5px 12px">Đăng xuất</button></div>`;
-    } else {
-      drawerAuth.innerHTML = `<a href="/login" class="nav-btn nav-btn-ghost" style="flex:1;text-align:center">Đăng nhập</a><a href="/register" class="nav-btn nav-btn-primary" style="flex:1;text-align:center;color:white">Đăng ký</a>`;
-    }
-    syncCartBadge();
-  };
-
   function syncCartBadge() {
     const cart = JSON.parse(localStorage.getItem('techstore_cart') || '[]');
     const total = cart.reduce((s,i)=>s+i.qty,0);
-    document.querySelectorAll('[id^="cart-count"]').forEach(el => {
+    document.querySelectorAll('[id*="cart-count"]').forEach(el => {
       el.textContent = total;
       el.classList.toggle('show', total > 0);
+      el.style.display = total > 0 ? 'inline-block' : 'none';
     });
   }
 

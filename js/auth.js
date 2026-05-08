@@ -40,7 +40,17 @@ auth.onAuthStateChanged(async (user) => {
     window.idToken = null;
     clearTimeout(sessionTimer);
   }
-  await updateNavbarAuth(user);
+  // FIX: đợi DOM + inline scripts load xong rồi mới update navbar
+  // Dùng setTimeout(0) để đẩy sau call stack hiện tại
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => updateNavbarAuth(user), 0);
+    });
+  } else {
+    // DOM đã ready, nhưng inline scripts có thể chưa chạy
+    // requestAnimationFrame đảm bảo chạy sau tất cả scripts đồng bộ
+    requestAnimationFrame(() => updateNavbarAuth(user));
+  }
 });
 
 // ── AUTH HEADER ───────────────────────────────────
@@ -74,21 +84,27 @@ async function apiCall(method, endpoint, data = null) {
 
 // ── NAVBAR ────────────────────────────────────────
 async function updateNavbarAuth(user) {
-  // Lấy role từ Firestore nếu đã đăng nhập
+  // Lấy role + displayName từ Firestore trong 1 lần gọi
   let role = 'user';
+  let displayName = null;
   if (user) {
     try {
       const snap = await db.collection('users').doc(user.uid).get();
-      if (snap.exists) role = snap.data().role || 'user';
+      if (snap.exists) {
+        role = snap.data().role || 'user';
+        displayName = snap.data().displayName || null;
+      }
     } catch (e) {
-      console.warn('Không lấy được role:', e);
+      console.warn('Không lấy được thông tin user:', e);
     }
     window.userRole = role;
   } else {
     window.userRole = null;
   }
 
-  const name = user ? (user.email?.split('@')[0] || 'User') : null;
+  const name = user
+    ? (displayName || user.displayName || user.email?.split('@')[0] || 'User')
+    : null;
 
   // ── 1. Navbar cũ (Bootstrap collapse) — id="navbar-auth" ──
   const legacyNav = document.getElementById('navbar-auth');

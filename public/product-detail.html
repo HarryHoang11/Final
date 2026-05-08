@@ -6,92 +6,836 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="page-title">Chi tiết sản phẩm - TechStore</title>
 
-  <!-- Bootstrap 5 + Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    :root {
+      --pd-radius: 20px;
+      --pd-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-primary, #0f1117);
+      color: var(--text-primary, #e8eaf0);
+      min-height: 100vh;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(28px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.93)
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1)
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -600px 0
+      }
+
+      100% {
+        background-position: 600px 0
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes badgePop {
+      0% {
+        transform: scale(0.7);
+        opacity: 0
+      }
+
+      70% {
+        transform: scale(1.1)
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    @keyframes cartBounce {
+      0% {
+        transform: scale(1)
+      }
+
+      40% {
+        transform: scale(0.92)
+      }
+
+      70% {
+        transform: scale(1.06)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255, 255, 255, .05) 0%, rgba(255, 255, 255, .12) 50%, rgba(255, 255, 255, .05) 100%);
+      background-size: 600px 100%;
+      animation: shimmer 1.6s infinite linear;
+      border-radius: 10px;
+    }
+
+    #product-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 20px;
+      animation: fadeIn .4s ease;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(99, 102, 241, .2);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--text-muted, #6b7280);
+    }
+
+    #product-skeleton {
+      display: none;
+      padding: 32px 0 60px;
+    }
+
+    .sk-img {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: var(--pd-radius);
+    }
+
+    .sk-badge {
+      width: 80px;
+      height: 26px;
+      margin-bottom: 16px;
+    }
+
+    .sk-title {
+      width: 85%;
+      height: 36px;
+      margin-bottom: 12px;
+    }
+
+    .sk-price {
+      width: 50%;
+      height: 44px;
+      margin-bottom: 24px;
+    }
+
+    .sk-line {
+      height: 14px;
+      margin-bottom: 10px;
+    }
+
+    .sk-btn {
+      height: 52px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pd-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted, #6b7280);
+      padding: 24px 0 0;
+      flex-wrap: wrap;
+    }
+
+    .pd-breadcrumb a {
+      color: var(--text-muted, #6b7280);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .pd-breadcrumb a:hover {
+      color: #6366f1;
+    }
+
+    .pd-breadcrumb .current {
+      color: var(--text-primary, #e8eaf0);
+      font-weight: 500;
+    }
+
+    #product-detail {
+      display: none;
+      padding: 20px 0 80px;
+    }
+
+    .pd-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media(max-width:900px) {
+      .pd-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+    }
+
+    .pd-image-panel {
+      animation: scaleIn .5s var(--pd-ease) both;
+    }
+
+    .pd-image-wrap {
+      position: relative;
+      border-radius: var(--pd-radius);
+      overflow: hidden;
+      background: var(--bg-secondary, #1a1d27);
+      aspect-ratio: 1;
+      border: 1px solid rgba(255, 255, 255, .06);
+      transition: box-shadow .4s;
+      cursor: zoom-in;
+    }
+
+    .pd-image-wrap:hover {
+      box-shadow: 0 32px 80px rgba(99, 102, 241, .18), 0 8px 32px rgba(0, 0, 0, .5);
+    }
+
+    .pd-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .6s var(--pd-ease);
+      display: block;
+    }
+
+    .pd-image-wrap:hover img {
+      transform: scale(1.04);
+    }
+
+    .pd-no-image {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(80px, 18vw, 140px);
+      filter: drop-shadow(0 4px 24px rgba(99, 102, 241, .25));
+    }
+
+    .pd-img-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(15, 17, 23, .85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary, #e8eaf0);
+      animation: badgePop .4s .6s both;
+    }
+
+    .pd-stock-badge {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+      animation: badgePop .4s .7s both;
+    }
+
+    .pd-stock-badge.in-stock {
+      background: rgba(16, 185, 129, .15);
+      border: 1px solid rgba(16, 185, 129, .3);
+      color: #10b981;
+    }
+
+    .pd-stock-badge.out-stock {
+      background: rgba(239, 68, 68, .15);
+      border: 1px solid rgba(239, 68, 68, .3);
+      color: #ef4444;
+    }
+
+    .pd-thumbs {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .pd-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      background: var(--bg-secondary, #1a1d27);
+      border: 2px solid rgba(255, 255, 255, .08);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all .25s;
+      flex-shrink: 0;
+    }
+
+    .pd-thumb:hover,
+    .pd-thumb.active {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, .2);
+    }
+
+    .pd-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .pd-info-panel {
+      animation: fadeUp .55s .15s var(--pd-ease) both;
+    }
+
+    .pd-category-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      background: rgba(99, 102, 241, .12);
+      border: 1px solid rgba(99, 102, 241, .25);
+      color: #818cf8;
+      margin-bottom: 14px;
+      animation: badgePop .4s .3s both;
+    }
+
+    .pd-name {
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 6px;
+      letter-spacing: -.5px;
+      background: linear-gradient(135deg, #e8eaf0 30%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp .5s .2s both;
+    }
+
+    .pd-rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      animation: fadeUp .5s .25s both;
+    }
+
+    .pd-stars {
+      color: #f59e0b;
+      font-size: 14px;
+      letter-spacing: 2px;
+    }
+
+    .pd-rating-text {
+      font-size: 13px;
+      color: var(--text-muted, #6b7280);
+    }
+
+    .pd-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      background: rgba(99, 102, 241, .06);
+      border: 1px solid rgba(99, 102, 241, .15);
+      border-radius: 14px;
+      animation: fadeUp .5s .3s both;
+      flex-wrap: wrap;
+    }
+
+    .pd-price {
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 800;
+      color: #818cf8;
+      letter-spacing: -1px;
+    }
+
+    .pd-price-note {
+      font-size: 12px;
+      color: var(--text-muted, #6b7280);
+    }
+
+    .pd-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, .06);
+      margin: 20px 0;
+      animation: fadeUp .5s .32s both;
+    }
+
+    .pd-desc-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted, #6b7280);
+      margin-bottom: 10px;
+    }
+
+    .pd-desc {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-secondary, #9ca3af);
+      margin-bottom: 28px;
+      animation: fadeUp .5s .35s both;
+    }
+
+    .pd-qty-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      animation: fadeUp .5s .38s both;
+    }
+
+    .pd-qty-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary, #9ca3af);
+    }
+
+    .pd-qty-ctrl {
+      display: flex;
+      align-items: center;
+      background: var(--bg-secondary, #1a1d27);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .pd-qty-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-secondary, #9ca3af);
+      font-size: 18px;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+
+    .pd-qty-btn:hover {
+      background: rgba(99, 102, 241, .15);
+      color: #818cf8;
+    }
+
+    .pd-qty-val {
+      width: 44px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-primary, #e8eaf0);
+      border-left: 1px solid rgba(255, 255, 255, .08);
+      border-right: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .pd-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+      animation: fadeUp .5s .42s both;
+    }
+
+    .pd-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 24px;
+      border-radius: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .3s var(--pd-ease);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pd-btn:active {
+      transform: scale(.98);
+    }
+
+    .pd-btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 24px rgba(99, 102, 241, .35);
+    }
+
+    .pd-btn-primary:hover {
+      box-shadow: 0 8px 32px rgba(99, 102, 241, .5);
+      transform: translateY(-1px);
+    }
+
+    .pd-btn-primary:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .pd-btn-outline {
+      background: transparent;
+      color: var(--text-primary, #e8eaf0);
+      border: 1.5px solid rgba(255, 255, 255, .12);
+    }
+
+    .pd-btn-outline:hover {
+      border-color: #6366f1;
+      color: #818cf8;
+      background: rgba(99, 102, 241, .06);
+    }
+
+    .pd-features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      animation: fadeUp .5s .48s both;
+    }
+
+    @media(max-width:600px) {
+      .pd-features {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media(max-width:380px) {
+      .pd-features {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pd-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--bg-secondary, #1a1d27);
+      border: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 12px;
+      transition: all .25s;
+    }
+
+    .pd-feature:hover {
+      border-color: rgba(99, 102, 241, .3);
+      background: rgba(99, 102, 241, .04);
+    }
+
+    .pd-feature-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .pd-feature-text {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .pd-feature-text strong {
+      display: block;
+      font-size: 13px;
+      color: var(--text-primary, #e8eaf0);
+    }
+
+    .pd-feature-text span {
+      color: var(--text-muted, #6b7280);
+    }
+
+    .btn-cart-success {
+      animation: cartBounce .4s ease;
+    }
+
+    #product-error {
+      display: none;
+      text-align: center;
+      padding: 80px 20px;
+      animation: fadeUp .4s ease;
+    }
+
+    .error-emoji {
+      font-size: 72px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .pd-sticky-cta {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      background: var(--bg-primary, #0f1117);
+      border-top: 1px solid rgba(255, 255, 255, .08);
+      backdrop-filter: blur(12px);
+      display: none;
+      z-index: 100;
+      animation: fadeUp .3s ease;
+      gap: 10px;
+    }
+
+    @media(max-width:768px) {
+      .pd-sticky-cta {
+        display: flex !important;
+      }
+
+      #product-detail .pd-btn-group {
+        display: none;
+      }
+
+      #product-detail {
+        padding-bottom: 100px;
+      }
+    }
+
+    .pd-sticky-price {
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #818cf8;
+      flex: 1;
+    }
+
+    .zoom-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .92);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .zoom-overlay.show {
+      opacity: 1;
+    }
+
+    .zoom-overlay img {
+      max-width: 92vw;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 12px;
+      transform: scale(.9);
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    .zoom-overlay.show img {
+      transform: scale(1);
+    }
+
+    .pd-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted, #6b7280);
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      background: rgba(255, 255, 255, .03);
+      margin-bottom: 16px;
+      transition: all .25s;
+      width: fit-content;
+    }
+
+    .pd-back:hover {
+      color: var(--text-primary, #e8eaf0);
+      border-color: rgba(255, 255, 255, .2);
+      background: rgba(255, 255, 255, .06);
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" style="z-index:200">
     <div class="container">
       <a href="/" class="navbar-brand">
         <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
         Tech<span class="fw-bold">Store</span>
       </a>
-      <a href="/products" class="btn btn-outline-light ms-auto">
-        <i class="bi bi-arrow-left me-1"></i> Quay lại cửa hàng
-      </a>
+      <div id="navbar-auth" class="d-flex align-items-center gap-2 ms-auto"></div>
     </div>
   </nav>
 
-  <div class="container py-5">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-        <li class="breadcrumb-item"><a href="/products">Sản phẩm</a></li>
-        <li class="breadcrumb-item active" id="breadcrumb-name">Chi tiết sản phẩm</li>
-      </ol>
-    </nav>
+  <div class="container">
 
-    <!-- Loading -->
-    <div id="product-loading" class="text-center py-5">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-      <p class="mt-3 text-muted">Đang tải thông tin sản phẩm...</p>
+    <!-- LOADING -->
+    <div id="product-loading">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Đang tải sản phẩm...</p>
     </div>
 
-    <!-- Product Detail -->
-    <div id="product-detail" class="row g-5 align-items-start" style="display: none;">
-
-      <!-- Image Column -->
-      <div class="col-lg-6">
-        <div id="product-image-container" class="rounded-4 overflow-hidden shadow bg-light ratio ratio-1x1">
-          <div id="product-img-placeholder" class="d-flex align-items-center justify-content-center h-100"
-            style="font-size: 6rem; background: var(--bg-secondary);">
-            📦
-          </div>
+    <!-- SKELETON -->
+    <div id="product-skeleton">
+      <div style="height:20px;width:220px" class="skeleton mb-4"></div>
+      <div class="pd-grid">
+        <div>
+          <div class="sk-img skeleton"></div>
+        </div>
+        <div>
+          <div class="sk-badge skeleton"></div>
+          <div class="sk-title skeleton"></div>
+          <div class="sk-price skeleton"></div>
+          <div class="sk-line skeleton" style="width:95%"></div>
+          <div class="sk-line skeleton" style="width:80%"></div>
+          <div class="sk-line skeleton" style="width:88%"></div>
+          <div class="sk-btn skeleton mt-4"></div>
+          <div class="sk-btn skeleton"></div>
         </div>
       </div>
+    </div>
 
-      <!-- Info Column -->
-      <div class="col-lg-6">
-        <div id="product-category" class="badge bg-primary fs-6 mb-3"></div>
+    <!-- PRODUCT DETAIL -->
+    <div id="product-detail">
+      <nav class="pd-breadcrumb">
+        <a href="/">Trang chủ</a>
+        <span style="opacity:.4">›</span>
+        <a href="/products">Sản phẩm</a>
+        <span style="opacity:.4">›</span>
+        <span class="current" id="breadcrumb-name">Chi tiết sản phẩm</span>
+      </nav>
 
-        <h1 id="product-name" class="display-5 fw-bold mb-3"></h1>
-        <h2 id="product-price" class="text-primary mb-4"></h2>
+      <a href="/products" class="pd-back">
+        <i class="bi bi-arrow-left"></i> Quay lại cửa hàng
+      </a>
 
-        <div id="product-stock" class="mb-4 fs-5"></div>
-
-        <div id="product-description" class="lead text-muted mb-5"></div>
-
-        <div class="d-grid gap-3 mb-4">
-          <button id="add-to-cart-btn" onclick="addToCartDetail()" class="btn btn-primary btn-lg py-3">
-            <i class="bi bi-cart-plus me-2"></i> Thêm vào giỏ hàng
-          </button>
-          <button onclick="window.location.href='/cart'" class="btn btn-outline-secondary btn-lg py-3">
-            <i class="bi bi-bag-check me-2"></i> Xem giỏ hàng
-          </button>
+      <div class="pd-grid">
+        <!-- IMAGE -->
+        <div class="pd-image-panel">
+          <div class="pd-image-wrap" id="image-wrap" onclick="openZoom()">
+            <div class="pd-no-image" id="product-img-placeholder">📦</div>
+            <span class="pd-img-badge" id="category-img-badge"></span>
+            <span class="pd-stock-badge" id="stock-img-badge"></span>
+          </div>
+          <div class="pd-thumbs" id="pd-thumbs"></div>
         </div>
 
-        <!-- Features -->
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <div class="row text-center">
-              <div class="col-4">
-                <i class="bi bi-truck fs-3 text-success"></i>
-                <p class="small mt-2 mb-0">Giao hàng nhanh<br><strong>2-4 giờ</strong></p>
+        <!-- INFO -->
+        <div class="pd-info-panel">
+          <div class="pd-category-tag" id="product-category"></div>
+          <h1 class="pd-name" id="product-name"></h1>
+          <div class="pd-rating">
+            <span class="pd-stars">★★★★★</span>
+            <span class="pd-rating-text">4.9 · 128 đánh giá</span>
+          </div>
+          <div class="pd-price-row">
+            <span class="pd-price" id="product-price"></span>
+            <span class="pd-price-note">Giá đã VAT · Miễn phí vận chuyển</span>
+          </div>
+          <div class="pd-divider"></div>
+          <p class="pd-desc-label">Mô tả sản phẩm</p>
+          <p class="pd-desc" id="product-description"></p>
+
+          <div class="pd-qty-row">
+            <span class="pd-qty-label">Số lượng</span>
+            <div class="pd-qty-ctrl">
+              <button class="pd-qty-btn" onclick="changeQty(-1)">−</button>
+              <span class="pd-qty-val" id="qty-display">1</span>
+              <button class="pd-qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <span style="font-size:13px;color:var(--text-muted,#6b7280)" id="stock-text"></span>
+          </div>
+
+          <div class="pd-btn-group">
+            <button class="pd-btn pd-btn-primary" id="add-to-cart-btn" onclick="addToCartDetail()">
+              <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
+            </button>
+            <button class="pd-btn pd-btn-outline" onclick="buyNow()">
+              <i class="bi bi-bag-check"></i> Mua ngay
+            </button>
+          </div>
+
+          <div class="pd-features">
+            <div class="pd-feature">
+              <span class="pd-feature-icon">🚚</span>
+              <div class="pd-feature-text">
+                <strong>Giao hàng nhanh</strong>
+                <span>2–4 giờ HN/HCM</span>
               </div>
-              <div class="col-4">
-                <i class="bi bi-shield-check fs-3 text-success"></i>
-                <p class="small mt-2 mb-0">Bảo hành<br><strong>chính hãng</strong></p>
+            </div>
+            <div class="pd-feature">
+              <span class="pd-feature-icon">🛡️</span>
+              <div class="pd-feature-text">
+                <strong>Bảo hành</strong>
+                <span>Chính hãng 12–24T</span>
               </div>
-              <div class="col-4">
-                <i class="bi bi-arrow-repeat fs-3 text-success"></i>
-                <p class="small mt-2 mb-0">Đổi trả<br><strong>30 ngày</strong></p>
+            </div>
+            <div class="pd-feature">
+              <span class="pd-feature-icon">🔄</span>
+              <div class="pd-feature-text">
+                <strong>Đổi trả</strong>
+                <span>30 ngày miễn phí</span>
               </div>
             </div>
           </div>
@@ -99,87 +843,157 @@
       </div>
     </div>
 
-    <!-- Error -->
-    <div id="product-error" class="text-center py-5 d-none">
-      <i class="bi bi-emoji-frown display-1 text-muted mb-4"></i>
-      <h3>Không tìm thấy sản phẩm</h3>
-      <p class="text-muted">Sản phẩm này có thể đã bị xóa hoặc không tồn tại.</p>
-      <a href="/products" class="btn btn-primary btn-lg mt-3">
-        ← Quay lại cửa hàng
+    <!-- ERROR -->
+    <div id="product-error">
+      <span class="error-emoji">😕</span>
+      <h3 style="font-size:24px;font-weight:700;margin-bottom:10px">Không tìm thấy sản phẩm</h3>
+      <p style="font-size:15px;color:var(--text-muted,#6b7280);margin-bottom:32px">Sản phẩm này có thể đã bị xóa hoặc
+        không tồn tại.</p>
+      <a href="/products" class="pd-btn pd-btn-primary" style="display:inline-flex;width:auto;text-decoration:none">
+        <i class="bi bi-arrow-left"></i> Quay lại cửa hàng
       </a>
     </div>
+  </div>
+
+  <!-- MOBILE STICKY CTA -->
+  <div class="pd-sticky-cta" id="sticky-cta" style="display:none">
+    <div class="pd-sticky-price" id="sticky-price"></div>
+    <button class="pd-btn pd-btn-primary" style="flex:2;padding:13px" onclick="addToCartDetail()">
+      <i class="bi bi-cart-plus"></i> Thêm giỏ
+    </button>
+    <button class="pd-btn pd-btn-outline" style="flex:1;padding:13px;border:1.5px solid rgba(255,255,255,.12)"
+      onclick="buyNow()">Mua ngay</button>
+  </div>
+
+  <!-- ZOOM MODAL -->
+  <div class="zoom-overlay" id="zoom-overlay" onclick="closeZoom()">
+    <img id="zoom-img" src="" alt="zoom">
   </div>
 
   <!-- CHATBOX -->
   <div id="chatbox-container"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/chatbox.js"></script>
-
   <script>
     let currentProduct = null;
+    let qty = 1;
 
     async function loadProduct() {
-      const pathParts = window.location.pathname.split('/');
-      const productId = pathParts[pathParts.length - 1];
+      const id = window.location.pathname.split('/').pop();
+      if (!id) { showError(); return; }
 
-      if (!productId) {
-        showError();
-        return;
-      }
+      const skTimer = setTimeout(() => {
+        document.getElementById('product-loading').style.display = 'none';
+        document.getElementById('product-skeleton').style.display = 'block';
+      }, 200);
 
       try {
-        const res = await fetch(`${API_BASE}/products/${productId}`);
+        const res = await fetch(API_BASE + '/products/' + id);
+        clearTimeout(skTimer);
         if (!res.ok) { showError(); return; }
-
         currentProduct = await res.json();
+        document.getElementById('product-loading').style.display = 'none';
+        document.getElementById('product-skeleton').style.display = 'none';
         renderProduct(currentProduct);
-
-      } catch (err) {
+      } catch (e) {
+        clearTimeout(skTimer);
         showError();
       }
     }
 
     function renderProduct(p) {
-      document.getElementById('product-loading').style.display = 'none';
-      document.getElementById('product-detail').style.display = 'grid';
-
-      const catLabel = CATEGORY_LABELS[p.category] || p.category;
+      document.getElementById('product-detail').style.display = 'block';
+      const catLabel = CATEGORY_LABELS[p.category] || p.category || 'Sản phẩm';
       const catIcon = CATEGORY_ICONS[p.category] || '📦';
 
-      document.title = `${p.name} - TechStore`;
+      document.title = p.name + ' - TechStore';
       document.getElementById('breadcrumb-name').textContent = p.name;
-      document.getElementById('product-category').textContent = `${catIcon} ${catLabel}`;
+      document.getElementById('product-category').innerHTML = catIcon + ' ' + catLabel;
       document.getElementById('product-name').textContent = p.name;
       document.getElementById('product-price').textContent = formatPrice(p.price);
       document.getElementById('product-description').textContent = p.description || 'Không có mô tả chi tiết.';
+      document.getElementById('category-img-badge').innerHTML = catIcon + ' ' + catLabel;
 
       const stock = p.stock || 0;
-      document.getElementById('product-stock').innerHTML = stock > 0
-        ? `<span style="color:var(--success)">✅ Còn hàng (${stock} cái)</span>`
-        : `<span style="color:var(--danger)">❌ Hết hàng</span>`;
+      const stockBadge = document.getElementById('stock-img-badge');
+      const stockText = document.getElementById('stock-text');
+      const cartBtn = document.getElementById('add-to-cart-btn');
+      if (stock > 0) {
+        stockBadge.textContent = '✅ Còn ' + stock + ' cái';
+        stockBadge.className = 'pd-stock-badge in-stock';
+        stockText.textContent = 'Còn ' + stock + ' sản phẩm';
+        cartBtn.disabled = false;
+      } else {
+        stockBadge.textContent = '❌ Hết hàng';
+        stockBadge.className = 'pd-stock-badge out-stock';
+        stockText.textContent = 'Hết hàng';
+        cartBtn.disabled = true;
+      }
 
       if (p.imageUrl) {
-        document.getElementById('product-image-container').innerHTML =
-          `<img src="${p.imageUrl}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover">`;
-      } else {
-        document.getElementById('product-img-placeholder').style.display = 'flex';
-        document.getElementById('product-img-placeholder').textContent = catIcon;
+        const wrap = document.getElementById('image-wrap');
+        document.getElementById('product-img-placeholder').style.display = 'none';
+        const img = document.createElement('img');
+        img.src = p.imageUrl; img.alt = p.name;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0';
+        wrap.insertBefore(img, wrap.firstChild);
+
+        const t = document.createElement('div');
+        t.className = 'pd-thumb active';
+        t.innerHTML = '<img src="' + p.imageUrl + '" alt="">';
+        document.getElementById('pd-thumbs').appendChild(t);
       }
+
+      document.getElementById('sticky-price').textContent = formatPrice(p.price);
+      document.getElementById('sticky-cta').style.display = 'flex';
+    }
+
+    function changeQty(d) {
+      const max = currentProduct ? (currentProduct.stock || 99) : 99;
+      qty = Math.max(1, Math.min(max, qty + d));
+      document.getElementById('qty-display').textContent = qty;
     }
 
     function addToCartDetail() {
       if (!currentProduct) return;
-      addToCart(currentProduct.id, currentProduct.name, currentProduct.price, currentProduct.imageUrl || '');
+      const btn = document.getElementById('add-to-cart-btn');
+      btn.classList.add('btn-cart-success');
+      setTimeout(() => btn.classList.remove('btn-cart-success'), 400);
+      for (let i = 0; i < qty; i++) {
+        addToCart(currentProduct.id, currentProduct.name, currentProduct.price, currentProduct.imageUrl || '');
+      }
     }
+
+    function buyNow() {
+      if (!currentProduct) return;
+      addToCartDetail();
+      setTimeout(() => window.location.href = '/cart', 600);
+    }
+
+    function openZoom() {
+      if (!currentProduct || !currentProduct.imageUrl) return;
+      const o = document.getElementById('zoom-overlay');
+      document.getElementById('zoom-img').src = currentProduct.imageUrl;
+      o.style.display = 'flex';
+      requestAnimationFrame(() => o.classList.add('show'));
+    }
+    function closeZoom() {
+      const o = document.getElementById('zoom-overlay');
+      o.classList.remove('show');
+      setTimeout(() => { o.style.display = 'none'; }, 300);
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeZoom(); });
 
     function showError() {
       document.getElementById('product-loading').style.display = 'none';
-      document.getElementById('product-error').classList.remove('hidden');
+      document.getElementById('product-skeleton').style.display = 'none';
+      document.getElementById('product-error').style.display = 'block';
     }
 
     document.addEventListener('DOMContentLoaded', loadProduct);
