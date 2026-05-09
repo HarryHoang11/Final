@@ -190,7 +190,7 @@
       gap: 6px;
       font-size: 13px;
       color: var(--text-muted, #6b7280);
-      padding: 24px 0 0;
+      padding: 24px 0 12px;
       flex-wrap: wrap;
     }
 
@@ -211,14 +211,20 @@
 
     #product-detail {
       display: none;
-      padding: 20px 0 80px;
+      padding: 28px 0 80px;
     }
 
     .pd-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
+      grid-template-columns: 5fr 6fr;
+      gap: 56px;
       align-items: start;
+    }
+
+    @media(max-width:1024px) {
+      .pd-grid {
+        gap: 36px;
+      }
     }
 
     @media(max-width:900px) {
@@ -230,6 +236,14 @@
 
     .pd-image-panel {
       animation: scaleIn .5s var(--pd-ease) both;
+      position: sticky;
+      top: 88px;
+    }
+
+    @media(max-width:900px) {
+      .pd-image-panel {
+        position: static;
+      }
     }
 
     .pd-image-wrap {
@@ -373,10 +387,14 @@
     }
 
     .pd-rating {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 20px;
+      padding: 8px 14px;
+      background: rgba(245, 158, 11, .06);
+      border: 1px solid rgba(245, 158, 11, .15);
+      border-radius: 10px;
       animation: fadeUp .5s .25s both;
     }
 
@@ -393,15 +411,16 @@
 
     .pd-price-row {
       display: flex;
-      align-items: baseline;
-      gap: 12px;
+      align-items: center;
+      gap: 16px;
       margin-bottom: 24px;
-      padding: 16px 20px;
+      padding: 18px 22px;
       background: rgba(99, 102, 241, .06);
       border: 1px solid rgba(99, 102, 241, .15);
-      border-radius: 14px;
+      border-radius: 16px;
       animation: fadeUp .5s .3s both;
       flex-wrap: wrap;
+      justify-content: space-between;
     }
 
     .pd-price {
@@ -443,8 +462,12 @@
     .pd-qty-row {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       margin-bottom: 20px;
+      padding: 12px 16px;
+      background: var(--bg-secondary, #1a1d27);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 12px;
       animation: fadeUp .5s .38s both;
     }
 
@@ -493,28 +516,36 @@
     }
 
     .pd-btn-group {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 28px;
       animation: fadeUp .5s .42s both;
+    }
+
+    @media(max-width:480px) {
+      .pd-btn-group {
+        grid-template-columns: 1fr;
+      }
     }
 
     .pd-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 15px 24px;
+      gap: 8px;
+      padding: 15px 12px;
       border-radius: 14px;
       font-family: 'Outfit', sans-serif;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all .3s var(--pd-ease);
       position: relative;
       overflow: hidden;
+      width: 100%;
+      white-space: nowrap;
     }
 
     .pd-btn:active {
@@ -554,7 +585,7 @@
     .pd-features {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: 12px;
       animation: fadeUp .5s .48s both;
     }
 
@@ -572,23 +603,26 @@
 
     .pd-feature {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 14px 16px;
       background: var(--bg-secondary, #1a1d27);
       border: 1px solid rgba(255, 255, 255, .06);
-      border-radius: 12px;
+      border-radius: 14px;
       transition: all .25s;
     }
 
     .pd-feature:hover {
       border-color: rgba(99, 102, 241, .3);
       background: rgba(99, 102, 241, .04);
+      transform: translateY(-2px);
     }
 
     .pd-feature-icon {
-      font-size: 20px;
+      font-size: 22px;
       flex-shrink: 0;
+      line-height: 1;
     }
 
     .pd-feature-text {
@@ -599,7 +633,9 @@
     .pd-feature-text strong {
       display: block;
       font-size: 13px;
+      font-weight: 600;
       color: var(--text-primary, #e8eaf0);
+      margin-bottom: 2px;
     }
 
     .pd-feature-text span {
@@ -804,7 +840,7 @@
               <span class="pd-qty-val" id="qty-display">1</span>
               <button class="pd-qty-btn" onclick="changeQty(1)">+</button>
             </div>
-            <span style="font-size:13px;color:var(--text-muted,#6b7280)" id="stock-text"></span>
+            <span style="font-size:13px;color:var(--text-muted,#6b7280);margin-left:auto" id="stock-text"></span>
           </div>
 
           <div class="pd-btn-group">
