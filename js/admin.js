@@ -1,5 +1,5 @@
 // ====================================================
-// ADMIN.JS - Admin Panel (Hoàn chỉnh + Fix tracking)
+// ADMIN.JS - Admin Panel (Fix xung đột Bootstrap modal)
 // ====================================================
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Admin initialization error:", err);
     console.warn("Chạy ở chế độ dev - bỏ qua lỗi auth");
-    loadAdminProducts(); // vẫn load UI dù auth lỗi
+    loadAdminProducts();
   }
 });
 
@@ -96,12 +96,10 @@ function openProductModal(product = null) {
     preview.style.display = "none";
   }
 
-  // FIX: dùng classList thay vì style.display
   document.getElementById("product-modal").classList.add("show");
 }
 
 function closeModal() {
-  // FIX: dùng classList thay vì style.display
   document.getElementById("product-modal").classList.remove("show");
 }
 
@@ -314,7 +312,7 @@ async function loadUsers() {
   }
 }
 
-// Close modal when clicking backdrop
+// Đóng modal khi click ra ngoài
 document.getElementById("product-modal")?.addEventListener("click", function(e) {
   if (e.target === this) closeModal();
 });
